@@ -4,13 +4,27 @@ import asyncio
 import time
 import re
 import os
+import threading
+from flask import Flask
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 # ================= CONFIGURATION (HARDCODED) =================
-BOT_TOKEN = "8752893076:AAHAX6qStla7ktu52jc6FFAJ6ElO25I0DGE"  # Apna Token yahan daalein
-ADMIN_USER_IDS = [6450199112, 7117775366]  # Apni Admin IDs yahan daalein
+BOT_TOKEN = "8752893076:AAHAX6qStla7ktu52jc6FFAJ6ElO25I0DGE"
+ADMIN_USER_IDS = [6450199112, 7117775366]
 # =============================================================
+
+# --- Flask Server for Render Port Binding ---
+server = Flask('')
+
+@server.route('/')
+def home():
+    return "Bot is alive and running!"
+
+def run_flask():
+    # Render default port 10000 use karta hai
+    port = int(os.environ.get('PORT', 10000))
+    server.run(host='0.0.0.0', port=port)
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -80,11 +94,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     ]
     
     msg = data["_settings"].get("start_message", DEFAULT_SETTINGS["start_message"])
-    await update.message.reply_text(
-        msg, 
-        reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), 
-        parse_mode='Markdown'
-    )
+    await update.message.reply_text(msg, reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), parse_mode='Markdown')
 
 async def my_account(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = str(update.effective_user.id)
@@ -121,62 +131,35 @@ async def show_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     
     await update.message.reply_text(msg, parse_mode='Markdown')
 
-# --- Admin Engine ---
+# --- Admin Handlers ---
 async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user.id not in ADMIN_USER_IDS: return
-    
-    kb = [
-        [KeyboardButton("🚀 Fast Add"), KeyboardButton("📢 Broadcast")],
-        [KeyboardButton("➕ Add Points"), KeyboardButton("➖ Remove Points")],
-        [KeyboardButton("📝 Edit Tasks"), KeyboardButton("📞 Edit Support")],
-        [KeyboardButton("⭐ Edit Start"), KeyboardButton("📝 Edit Header")],
-        [KeyboardButton("🔙 Close Admin Panel")]
-    ]
-    await update.message.reply_text(
-        "👑 *ADMIN COMMAND CENTRE*\n\n"
-        "• `/database` : View all users\n"
-        "• `/add_id <id> <pts>` : Manual add",
-        reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), 
-        parse_mode='Markdown'
-    )
+    kb = [[KeyboardButton("🚀 Fast Add"), KeyboardButton("📢 Broadcast")], [KeyboardButton("📝 Edit Tasks"), KeyboardButton("📞 Edit Support")], [KeyboardButton("⭐ Edit Start"), KeyboardButton("📝 Edit Header")], [KeyboardButton("🔙 Close Admin Panel")]]
+    await update.message.reply_text("👑 *ADMIN PANEL*", reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), parse_mode='Markdown')
 
 async def show_full_database(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user.id not in ADMIN_USER_IDS: return
     data = load_user_data()
     users = {k: v for k, v in data.items() if k != "_settings"}
+    if not users: return await update.message.reply_text("📭 Empty.")
     
-    if not users:
-        await update.message.reply_text("📭 Database is empty.")
-        return
-
-    header = "📂 *USER DATABASE EXPORT*\n━━━━━━━━━━━━━━━━━━\n"
-    sorted_users = sorted(users.items(), key=lambda x: x[1].get('points', 0), reverse=True)
-    
-    current_msg = header
-    for uid, info in sorted_users:
+    msg = "📂 *USER DATABASE*\n"
+    for uid, info in sorted(users.items(), key=lambda x: x[1].get('points', 0), reverse=True):
         line = f"• `{uid}` | `{info.get('points', 0)}` Pts\n"
-        if len(current_msg) + len(line) > 4000:
-            await update.message.reply_text(current_msg, parse_mode='Markdown')
-            current_msg = ""
-        current_msg += line
-    
-    if current_msg:
-        await update.message.reply_text(current_msg, parse_mode='Markdown')
+        if len(msg) + len(line) > 4000:
+            await update.message.reply_text(msg, parse_mode='Markdown')
+            msg = ""
+        msg += line
+    if msg: await update.message.reply_text(msg, parse_mode='Markdown')
 
 async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     admin_id = update.effective_user.id
     if admin_id not in ADMIN_USER_IDS: return
-    
-    text = update.message.text
-    data = load_user_data()
-    mode = context.user_data.get('mode')
+    text, data, mode = update.message.text, load_user_data(), context.user_data.get('mode')
 
-    # Fast Add Initiation
     if text == "🚀 Fast Add":
         context.user_data['mode'] = 'fa_pts'
-        await update.message.reply_text("🔢 *Points to add?* (Send number only)")
-        return
-    
+        return await update.message.reply_text("🔢 *Points to add?*")
     elif text == "✅ Done (Process)":
         if admin_id in fast_add_cache:
             info = fast_add_cache[admin_id]
@@ -184,78 +167,54 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
                 if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
                 data[uid]['points'] += info['points']
             save_user_data(data)
-            await update.message.reply_text(f"✅ Successfully added `{info['points']}` points to `{len(info['ids'])}` users.")
+            await update.message.reply_text(f"✅ Success: {len(info['ids'])} users.")
             del fast_add_cache[admin_id]
             context.user_data.clear()
-            await admin_panel(update, context)
-        return
+            return await admin_panel(update, context)
 
-    # Processing Input Modes
     if mode == 'fa_pts':
         try:
             fast_add_cache[admin_id] = {"points": int(text), "ids": set()}
             context.user_data['mode'] = 'fa_collect'
-            await update.message.reply_text(f"💰 Points set to `{text}`. Now forward the messages.\n\nClick **Done** when finished.", 
-                                           reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Done (Process)")]], resize_keyboard=True))
-        except: await update.message.reply_text("❌ Please send a valid number.")
-        return
-
-    if mode == 'fa_collect' and text != "✅ Done (Process)":
-        found = re.findall(r'(\d{8,12})', text)
-        if found:
-            for fid in found: fast_add_cache[admin_id]['ids'].add(fid)
-            await update.message.reply_text(f"📥 Found: `{len(found)}` | Total Unique: `{len(fast_add_cache[admin_id]['ids'])}`")
-        return
-
-    # Menu Actions
-    if text == "🔙 Close Admin Panel":
-        context.user_data.clear()
-        await start(update, context)
-    elif text == "📝 Edit Tasks": context.user_data['mode'] = 'e_tasks'; await update.message.reply_text("Send new Tasks text:")
-    elif text == "📞 Edit Support": context.user_data['mode'] = 'e_supp'; await update.message.reply_text("Send new Support text:")
-    elif text == "⭐ Edit Start": context.user_data['mode'] = 'e_start'; await update.message.reply_text("Send new Start message:")
-    elif text == "📝 Edit Header": context.user_data['mode'] = 'e_head'; await update.message.reply_text("Send new Header text:")
-    elif text == "📢 Broadcast": context.user_data['mode'] = 'bc'; await update.message.reply_text("Send message to broadcast:")
+            await update.message.reply_text("📥 Forward messages then click Done.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Done (Process)")]], resize_keyboard=True))
+        except: await update.message.reply_text("Enter number!")
+    elif mode == 'fa_collect' and text != "✅ Done (Process)":
+        for fid in re.findall(r'(\d{8,12})', text): fast_add_cache[admin_id]['ids'].add(fid)
+        await update.message.reply_text(f"Total Unique: {len(fast_add_cache[admin_id]['ids'])}")
     
+    elif text == "🔙 Close Admin Panel": await start(update, context)
+    elif text == "📝 Edit Tasks": context.user_data['mode'] = 'et'; await update.message.reply_text("New Tasks:")
+    elif text == "📞 Edit Support": context.user_data['mode'] = 'es'; await update.message.reply_text("New Support:")
+    elif text == "📢 Broadcast": context.user_data['mode'] = 'bc'; await update.message.reply_text("Msg:")
     elif mode:
         m = context.user_data.pop('mode')
-        if m == 'e_tasks': data["_settings"]["tasks_message"] = text
-        elif m == 'e_supp': data["_settings"]["support_message"] = text
-        elif m == 'e_start': data["_settings"]["start_message"] = text
-        elif m == 'e_head': data["_settings"]["leaderboard_header"] = text
+        if m == 'et': data["_settings"]["tasks_message"] = text
+        elif m == 'es': data["_settings"]["support_message"] = text
         elif m == 'bc':
             for u in [k for k in data.keys() if k != "_settings"]:
                 try: await context.bot.send_message(u, text, parse_mode='Markdown')
                 except: pass
         save_user_data(data)
-        await update.message.reply_text("✅ Setting Updated Successfully!")
+        await update.message.reply_text("✅ Updated!")
         await admin_panel(update, context)
 
-# --- Main App ---
+# --- Main ---
 def main():
-    if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE":
-        print("❌ Error: Please set your BOT_TOKEN in the code!")
-        return
+    # Start Flask Server in a separate thread
+    threading.Thread(target=run_flask, daemon=True).start()
 
     app = Application.builder().token(BOT_TOKEN).build()
-    
-    # Commands
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
     app.add_handler(CommandHandler("database", show_full_database))
-    
-    # Keyboard Buttons
     app.add_handler(MessageHandler(filters.Regex(r'💳 My Account'), my_account))
     app.add_handler(MessageHandler(filters.Regex(r'🏆 Leaderboard'), show_leaderboard))
     app.add_handler(MessageHandler(filters.Regex(r'✅ Tasks'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["tasks_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.Regex(r'📞 Support'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["support_message"], parse_mode='Markdown')))
+    app.add_handler(MessageHandler(filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS), handle_admin_actions))
 
-    # Admin Filtered Logic
-    admin_filter = (filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS))
-    app.add_handler(MessageHandler(admin_filter, handle_admin_actions))
-
-    print("✅ Bot is Online and Professional!")
-    app.run_polling()
+    print("✅ Bot & Web Server Started!")
+    app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
     main()
