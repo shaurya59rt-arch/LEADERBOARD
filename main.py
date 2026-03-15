@@ -22,7 +22,6 @@ def home():
     return "Bot is alive and running!"
 
 def run_flask():
-    # Render default port 10000 use karta hai
     port = int(os.environ.get('PORT', 10000))
     server.run(host='0.0.0.0', port=port)
 
@@ -134,7 +133,13 @@ async def show_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 # --- Admin Handlers ---
 async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user.id not in ADMIN_USER_IDS: return
-    kb = [[KeyboardButton("🚀 Fast Add"), KeyboardButton("📢 Broadcast")], [KeyboardButton("📝 Edit Tasks"), KeyboardButton("📞 Edit Support")], [KeyboardButton("⭐ Edit Start"), KeyboardButton("📝 Edit Header")], [KeyboardButton("🔙 Close Admin Panel")]]
+    kb = [
+        [KeyboardButton("🚀 Fast Add"), KeyboardButton("📢 Broadcast")],
+        [KeyboardButton("➕ Add Points"), KeyboardButton("➖ Remove Points")],
+        [KeyboardButton("📝 Edit Tasks"), KeyboardButton("📞 Edit Support")],
+        [KeyboardButton("⭐ Edit Start"), KeyboardButton("📝 Edit Header")],
+        [KeyboardButton("🔙 Close Admin Panel")]
+    ]
     await update.message.reply_text("👑 *ADMIN PANEL*", reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), parse_mode='Markdown')
 
 async def show_full_database(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -157,6 +162,7 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
     if admin_id not in ADMIN_USER_IDS: return
     text, data, mode = update.message.text, load_user_data(), context.user_data.get('mode')
 
+    # Fast Add Logic
     if text == "🚀 Fast Add":
         context.user_data['mode'] = 'fa_pts'
         return await update.message.reply_text("🔢 *Points to add?*")
@@ -167,29 +173,56 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
                 if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
                 data[uid]['points'] += info['points']
             save_user_data(data)
-            await update.message.reply_text(f"✅ Success: {len(info['ids'])} users.")
+            await update.message.reply_text(f"✅ Success: {len(info['ids'])} users updated.")
             del fast_add_cache[admin_id]
             context.user_data.clear()
             return await admin_panel(update, context)
 
+    # Manual Add/Remove Logic
+    elif text == "➕ Add Points":
+        context.user_data['mode'] = 'manual_add'
+        return await update.message.reply_text("Send: `UserID Points`\n(Example: `1234567 10`)", parse_mode='Markdown')
+    elif text == "➖ Remove Points":
+        context.user_data['mode'] = 'manual_rem'
+        return await update.message.reply_text("Send: `UserID Points`\n(Example: `1234567 10`)", parse_mode='Markdown')
+
+    # Processing Modes
     if mode == 'fa_pts':
         try:
             fast_add_cache[admin_id] = {"points": int(text), "ids": set()}
             context.user_data['mode'] = 'fa_collect'
             await update.message.reply_text("📥 Forward messages then click Done.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Done (Process)")]], resize_keyboard=True))
-        except: await update.message.reply_text("Enter number!")
+        except: await update.message.reply_text("Enter valid number!")
     elif mode == 'fa_collect' and text != "✅ Done (Process)":
         for fid in re.findall(r'(\d{8,12})', text): fast_add_cache[admin_id]['ids'].add(fid)
         await update.message.reply_text(f"Total Unique: {len(fast_add_cache[admin_id]['ids'])}")
     
+    elif mode in ['manual_add', 'manual_rem']:
+        try:
+            uid, pts = text.split()
+            pts = int(pts)
+            if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
+            if mode == 'manual_add': data[uid]['points'] += pts
+            else: data[uid]['points'] = max(0, data[uid]['points'] - pts)
+            save_user_data(data)
+            await update.message.reply_text(f"✅ User `{uid}` updated. Balance: `{data[uid]['points']}`", parse_mode='Markdown')
+            context.user_data.clear()
+            await admin_panel(update, context)
+        except: await update.message.reply_text("❌ Galat format! Format: `UserID Points`")
+
+    # Settings Actions
     elif text == "🔙 Close Admin Panel": await start(update, context)
     elif text == "📝 Edit Tasks": context.user_data['mode'] = 'et'; await update.message.reply_text("New Tasks:")
     elif text == "📞 Edit Support": context.user_data['mode'] = 'es'; await update.message.reply_text("New Support:")
+    elif text == "⭐ Edit Start": context.user_data['mode'] = 'e_st'; await update.message.reply_text("New Start Message:")
+    elif text == "📝 Edit Header": context.user_data['mode'] = 'e_hd'; await update.message.reply_text("New Header:")
     elif text == "📢 Broadcast": context.user_data['mode'] = 'bc'; await update.message.reply_text("Msg:")
     elif mode:
         m = context.user_data.pop('mode')
         if m == 'et': data["_settings"]["tasks_message"] = text
         elif m == 'es': data["_settings"]["support_message"] = text
+        elif m == 'e_st': data["_settings"]["start_message"] = text
+        elif m == 'e_hd': data["_settings"]["leaderboard_header"] = text
         elif m == 'bc':
             for u in [k for k in data.keys() if k != "_settings"]:
                 try: await context.bot.send_message(u, text, parse_mode='Markdown')
@@ -200,9 +233,7 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
 
 # --- Main ---
 def main():
-    # Start Flask Server in a separate thread
     threading.Thread(target=run_flask, daemon=True).start()
-
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
@@ -212,8 +243,7 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r'✅ Tasks'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["tasks_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.Regex(r'📞 Support'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["support_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS), handle_admin_actions))
-
-    print("✅ Bot & Web Server Started!")
+    print("✅ Bot is Online!")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
