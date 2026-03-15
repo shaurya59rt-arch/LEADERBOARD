@@ -8,8 +8,8 @@ from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 # ================= CONFIGURATION (HARDCODED) =================
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # Apna Token yahan daalein
-ADMIN_USER_IDS = [123456789, 987654321]  # Apni Admin IDs yahan daalein
+BOT_TOKEN = "8752893076:AAHAX6qStla7ktu52jc6FFAJ6ElO25I0DGE"  # Apna Token yahan daalein
+ADMIN_USER_IDS = [6450199112, 7117775366]  # Apni Admin IDs yahan daalein
 # =============================================================
 
 # --- Logging Setup ---
