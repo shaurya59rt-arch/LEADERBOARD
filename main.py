@@ -40,15 +40,17 @@ DEFAULT_SETTINGS = {
 }
 
 fast_add_cache = {} 
-auto_merge_db = {} # Naya Storage for Auto-Merge IDs
+auto_merge_db = {} # Storage for Auto-Merge IDs
 
 # --- Helper for Merging IDs ---
-def get_redirected_id(input_str, admin_id):
+def get_redirected_ids(input_str, admin_id):
+    # Agar '--' use kiya hai
     if '--' in input_str:
-        return input_str.split('--')[-1].strip()
-    if admin_id in auto_merge_db:
+        return [input_str.split('--')[-1].strip()]
+    # Agar Auto-Merge list set hai
+    if admin_id in auto_merge_db and auto_merge_db[admin_id]:
         return auto_merge_db[admin_id]
-    return input_str.strip()
+    return [input_str.strip()]
 
 # --- Database Management ---
 def load_user_data():
@@ -138,26 +140,27 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
     # --- Auto Merge Handlers ---
     if text == "🔗 Set Auto-Merge":
         context.user_data['mode'] = 'set_merge'
-        return await update.message.reply_text("Enter the Target ID for Auto-Merge:")
+        return await update.message.reply_text("Enter Target IDs (Comma separated):\nExample: `123, 456, 789`", parse_mode='Markdown')
     elif mode == 'set_merge':
-        auto_merge_db[admin_id] = text.strip()
-        await update.message.reply_text(f"✅ Auto-Merge set to: `{text.strip()}`", parse_mode='Markdown')
+        auto_merge_db[admin_id] = [i.strip() for i in text.split(',')]
+        await update.message.reply_text(f"✅ Auto-Merge Targets set to: `{auto_merge_db[admin_id]}`", parse_mode='Markdown')
         context.user_data.clear(); return await admin_panel(update, context)
     elif text == "🔗 Reset Auto-Merge":
         if admin_id in auto_merge_db: del auto_merge_db[admin_id]
         await update.message.reply_text("✅ Auto-Merge Reset!"); return await admin_panel(update, context)
     elif text == "🔗 Check Auto-Merge Status":
-        if not auto_merge_db: return await update.message.reply_text("⚠️ No Auto-Merge target is set.")
+        targets = auto_merge_db.get(admin_id, [])
+        if not targets: return await update.message.reply_text("⚠️ No Auto-Merge target is set.")
         msg = "📊 *AUTO-MERGE STATUS*\n━━━━━━━━━━━━━━━━━━\n"
-        for admin, target in auto_merge_db.items():
-            u_info = data.get(target, {'points': 0})
-            msg += f"🎯 *Target ID:* `{target}`\n💰 *Total Balance:* `{round(u_info.get('points', 0), 2)} Pts`\n"
+        for t in targets:
+            u_info = data.get(t, {'points': 0})
+            msg += f"🎯 *ID:* `{t}` | 💰 *Bal:* `{round(u_info.get('points', 0), 2)} Pts`\n"
         return await update.message.reply_text(msg, parse_mode='Markdown')
 
     # --- ✨ Special Add Feature ---
     if text == "✨ Special Add":
         context.user_data['mode'] = 'special_add'
-        return await update.message.reply_text("Paste your list (ID Points):\nExample:\n`7880740015 3.33`\n`123 10.5`", parse_mode='Markdown')
+        return await update.message.reply_text("Paste your list (ID Points):\nExample:\n`7880740015 3.33`", parse_mode='Markdown')
     elif mode == 'special_add':
         lines = text.split('\n')
         count = 0
@@ -165,10 +168,11 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
             try:
                 parts = line.split()
                 if len(parts) >= 2:
-                    target_id = get_redirected_id(parts[0], admin_id)
+                    target_ids = get_redirected_ids(parts[0], admin_id)
                     pts = float(parts[1])
-                    if target_id not in data: data[target_id] = {'points': 0, 'username': f"User {target_id}", 'first_name': "N/A"}
-                    data[target_id]['points'] += pts
+                    for t_id in target_ids:
+                        if t_id not in data: data[t_id] = {'points': 0, 'username': f"User {t_id}", 'first_name': "N/A"}
+                        data[t_id]['points'] += pts
                     count += 1
             except: continue
         save_user_data(data)
@@ -184,25 +188,28 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
         if admin_id in fast_add_cache:
             info = fast_add_cache[admin_id]
             for raw_entry in info['ids']:
-                target_id = get_redirected_id(raw_entry, admin_id)
-                if target_id not in data: data[target_id] = {'points': 0, 'username': f"User {target_id}", 'first_name': "N/A"}
-                data[target_id]['points'] += info['points']
+                target_ids = get_redirected_ids(raw_entry, admin_id)
+                for t_id in target_ids:
+                    if t_id not in data: data[t_id] = {'points': 0, 'username': f"User {t_id}", 'first_name': "N/A"}
+                    data[t_id]['points'] += info['points']
             save_user_data(data)
-            await update.message.reply_text(f"✅ Success: Updated {len(info['ids'])} users.")
+            await update.message.reply_text(f"✅ Success: Updated users.")
             del fast_add_cache[admin_id]
             context.user_data.clear()
             return await admin_panel(update, context)
 
-    # --- Other Handlers ---
+    # --- Manual Add/Remove ---
     elif text == "➕ Add Points": context.user_data['mode'] = 'manual_add'; return await update.message.reply_text("Send: `UserID Points`")
     elif text == "➖ Remove Points": context.user_data['mode'] = 'manual_rem'; return await update.message.reply_text("Send: `UserID Points`")
+    
+    # --- Broadcast ---
     elif text == "📢 Broadcast":
         context.user_data['mode'] = 'bc_input'
         return await update.message.reply_text("📢 *Enter message to broadcast:*")
     elif mode == 'bc_input':
         context.user_data['bc_msg'] = text
         context.user_data['mode'] = 'bc_confirm'
-        await update.message.reply_text(f"📢 *PREVIEW:*\n\n*{text}*\n\n✅ Confirm?", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Confirm & Send")], [KeyboardButton("🔙 Close Admin Panel")]], resize_keyboard=True), parse_mode='Markdown')
+        await update.message.reply_text(f"📢 *PREVIEW:*\n\n*{text}*", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Confirm & Send")], [KeyboardButton("🔙 Close Admin Panel")]], resize_keyboard=True), parse_mode='Markdown')
         return
     elif mode == 'bc_confirm' and text == "✅ Confirm & Send":
         msg = f"*{context.user_data.get('bc_msg')}*"
@@ -230,12 +237,13 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
         try:
             uid_raw, pts = text.split()
             pts = float(pts)
-            uid = get_redirected_id(uid_raw, admin_id)
-            if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
-            if mode == 'manual_add': data[uid]['points'] += pts
-            else: data[uid]['points'] = max(0, data[uid]['points'] - pts)
+            target_ids = get_redirected_ids(uid_raw, admin_id)
+            for uid in target_ids:
+                if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
+                if mode == 'manual_add': data[uid]['points'] += pts
+                else: data[uid]['points'] = max(0, data[uid]['points'] - pts)
             save_user_data(data)
-            await update.message.reply_text(f"✅ User `{uid}` updated. Balance: `{round(data[uid]['points'], 2)}`", parse_mode='Markdown')
+            await update.message.reply_text(f"✅ Users updated.", parse_mode='Markdown')
             context.user_data.clear()
             await admin_panel(update, context)
         except: await update.message.reply_text("❌ Error! Format: `UserID Points`")
@@ -266,7 +274,7 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r'✅ Tasks'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["tasks_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.Regex(r'📞 Support'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["support_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS), handle_admin_actions))
-    print("✅ Bot is Online with Merge & Special Add Features!")
+    print("✅ Bot is Online with Multiple Target Merge Support!")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
