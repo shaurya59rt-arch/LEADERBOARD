@@ -40,11 +40,16 @@ DEFAULT_SETTINGS = {
 }
 
 fast_add_cache = {} 
+auto_merge_db = {} # Naya Storage for Auto-Merge IDs
 
 # --- Helper for Merging IDs ---
-def get_redirected_id(input_str):
+def get_redirected_id(input_str, admin_id):
+    # Agar manually '--' use kiya hai toh priority wahi hogi
     if '--' in input_str:
         return input_str.split('--')[-1].strip()
+    # Agar Auto-Merge set hai toh wo ID return karega
+    if admin_id in auto_merge_db:
+        return auto_merge_db[admin_id]
     return input_str.strip()
 
 # --- Database Management ---
@@ -96,7 +101,6 @@ async def my_account(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     user_info = data.get(user_id, {'points': 0})
     rank = get_user_rank(user_id, data)
     total_users = len([k for k in data.keys() if k != "_settings"])
-    # Round to 2 decimals for display
     balance = round(user_info.get('points', 0), 2)
     msg = f"👤 *USER ACCOUNT INFO*\n━━━━━━━━━━━━━━━━━━\n🆔 *ID:* `{user_id}`\n💰 *Balance:* `{balance} Pts`\n🏆 *Global Rank:* `{rank}`\n👥 *Total Users:* `{total_users}`"
     await update.message.reply_text(msg, parse_mode='Markdown')
@@ -104,7 +108,6 @@ async def my_account(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 async def show_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     data = load_user_data()
     settings = data["_settings"]
-    # Changed filter to show 0 point users too if they exist in DB
     users = {k: v for k, v in data.items() if k != "_settings"}
     if not users: return await update.message.reply_text("⚠️ *Leaderboard is currently empty!*", parse_mode='Markdown')
     
@@ -120,6 +123,7 @@ async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     if update.effective_user.id not in ADMIN_USER_IDS: return
     kb = [
         [KeyboardButton("🚀 Fast Add"), KeyboardButton("✨ Special Add")],
+        [KeyboardButton("🔗 Set Auto-Merge"), KeyboardButton("🔗 Reset Auto-Merge")],
         [KeyboardButton("📢 Broadcast"), KeyboardButton("➕ Add Points")],
         [KeyboardButton("➖ Remove Points"), KeyboardButton("📝 Edit Tasks")],
         [KeyboardButton("📞 Edit Support"), KeyboardButton("⭐ Edit Start")],
@@ -132,10 +136,22 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
     if admin_id not in ADMIN_USER_IDS: return
     text, data, mode = update.message.text, load_user_data(), context.user_data.get('mode')
 
+    # --- Auto Merge Handlers ---
+    if text == "🔗 Set Auto-Merge":
+        context.user_data['mode'] = 'set_merge'
+        return await update.message.reply_text("Enter the Target ID for Auto-Merge:")
+    elif mode == 'set_merge':
+        auto_merge_db[admin_id] = text.strip()
+        await update.message.reply_text(f"✅ Auto-Merge set to: `{text.strip()}`", parse_mode='Markdown')
+        context.user_data.clear(); return await admin_panel(update, context)
+    elif text == "🔗 Reset Auto-Merge":
+        if admin_id in auto_merge_db: del auto_merge_db[admin_id]
+        await update.message.reply_text("✅ Auto-Merge Reset!"); return await admin_panel(update, context)
+
     # --- ✨ Special Add Feature ---
     if text == "✨ Special Add":
         context.user_data['mode'] = 'special_add'
-        return await update.message.reply_text("Paste your list (ID Points):\nExample:\n`7880740015 3.33`\n`123-456--789 10.5`", parse_mode='Markdown')
+        return await update.message.reply_text("Paste your list (ID Points):\nExample:\n`7880740015 3.33`\n`123 10.5`", parse_mode='Markdown')
 
     elif mode == 'special_add':
         lines = text.split('\n')
@@ -144,7 +160,7 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
             try:
                 parts = line.split()
                 if len(parts) >= 2:
-                    target_id = get_redirected_id(parts[0])
+                    target_id = get_redirected_id(parts[0], admin_id)
                     pts = float(parts[1])
                     if target_id not in data: data[target_id] = {'points': 0, 'username': f"User {target_id}", 'first_name': "N/A"}
                     data[target_id]['points'] += pts
@@ -164,7 +180,7 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
         if admin_id in fast_add_cache:
             info = fast_add_cache[admin_id]
             for raw_entry in info['ids']:
-                target_id = get_redirected_id(raw_entry)
+                target_id = get_redirected_id(raw_entry, admin_id)
                 if target_id not in data: data[target_id] = {'points': 0, 'username': f"User {target_id}", 'first_name': "N/A"}
                 data[target_id]['points'] += info['points']
             save_user_data(data)
@@ -173,11 +189,11 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
             context.user_data.clear()
             return await admin_panel(update, context)
 
-    # Manual Add/Remove
+    # --- Manual Add/Remove ---
     elif text == "➕ Add Points": context.user_data['mode'] = 'manual_add'; return await update.message.reply_text("Send: `UserID Points`")
     elif text == "➖ Remove Points": context.user_data['mode'] = 'manual_rem'; return await update.message.reply_text("Send: `UserID Points`")
 
-    # Broadcast
+    # --- Broadcast ---
     elif text == "📢 Broadcast":
         context.user_data['mode'] = 'bc_input'
         return await update.message.reply_text("📢 *Enter message to broadcast:*")
@@ -196,16 +212,15 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
         context.user_data.clear()
         return await admin_panel(update, context)
 
-    # Processing Input
+    # --- Processing Input ---
     if mode == 'fa_pts':
         try:
             fast_add_cache[admin_id] = {"points": float(text), "ids": set()}
             context.user_data['mode'] = 'fa_collect'
-            await update.message.reply_text("📥 Forward messages or type IDs/Merged IDs, then click Done.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Done (Process)")]], resize_keyboard=True))
+            await update.message.reply_text("📥 Forward messages or type IDs, then click Done.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Done (Process)")]], resize_keyboard=True))
         except: await update.message.reply_text("Enter number!")
     elif mode == 'fa_collect' and text != "✅ Done (Process)":
-        # Supports single IDs or Merged ID strings
-        found = re.findall(r'(\d+[\d\-\-]+\d+|\d{8,12})', text)
+        found = re.findall(r'(\d+)', text)
         for f in found: fast_add_cache[admin_id]['ids'].add(f)
         await update.message.reply_text(f"📥 Unique Entries: {len(fast_add_cache[admin_id]['ids'])}")
     
@@ -213,7 +228,7 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
         try:
             uid_raw, pts = text.split()
             pts = float(pts)
-            uid = get_redirected_id(uid_raw)
+            uid = get_redirected_id(uid_raw, admin_id)
             if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
             if mode == 'manual_add': data[uid]['points'] += pts
             else: data[uid]['points'] = max(0, data[uid]['points'] - pts)
