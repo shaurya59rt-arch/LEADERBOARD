@@ -63,6 +63,15 @@ def save_user_data(data):
             with open(DATA_FILE, 'w') as f: json.dump(data, f, indent=4)
         except Exception as e: logger.error(f"Error saving DB: {e}")
 
+# --- Database Export Handler ---
+async def send_database(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_user.id not in ADMIN_USER_IDS: return
+    with db_lock:
+        if os.path.exists(DATA_FILE):
+            await update.message.reply_document(document=open(DATA_FILE, 'rb'))
+        else:
+            await update.message.reply_text("⚠️ Database file not found!")
+
 def get_user_rank(user_id, data):
     users = {k: v for k, v in data.items() if k != "_settings"}
     sorted_users = sorted(users.items(), key=lambda x: x[1].get('points', 0), reverse=True)
@@ -248,12 +257,16 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
+    
+    # Database export handler
+    app.add_handler(CommandHandler("database", send_database))
+    
     app.add_handler(MessageHandler(filters.Regex(r'💳 My Account'), my_account))
     app.add_handler(MessageHandler(filters.Regex(r'🏆 Leaderboard'), show_leaderboard))
     app.add_handler(MessageHandler(filters.Regex(r'✅ Tasks'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["tasks_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.Regex(r'📞 Support'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["support_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS), handle_admin_actions))
-    print("✅ Bot is Online with Full Features!")
+    print("✅ Bot is Online with Full Features and /database Active!")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
