@@ -9,10 +9,12 @@ from flask import Flask
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
-# ================= CONFIGURATION (HARDCODED) =================
+# ================= CONFIGURATION =================
 BOT_TOKEN = "8752893076:AAHAX6qStla7ktu52jc6FFAJ6ElO25I0DGE"
 ADMIN_USER_IDS = [6450199112, 7117775366]
-# =============================================================
+DATA_FILE = 'user_db.json'
+db_lock = threading.Lock() # Database lock for concurrency safety
+# =================================================
 
 server = Flask('')
 
@@ -30,7 +32,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-DATA_FILE = 'user_db.json'
 DEFAULT_SETTINGS = {
     "leaderboard_size": 10,
     "leaderboard_header": "🏆 *MONKXZ GLOBAL LEADERBOARD* 🏆", 
@@ -40,38 +41,38 @@ DEFAULT_SETTINGS = {
 }
 
 fast_add_cache = {} 
-auto_merge_db = {} # Storage for Auto-Merge IDs
+auto_merge_db = {} 
 
 # --- Helper for Merging IDs ---
 def get_redirected_ids(input_str, admin_id):
-    # Agar '--' use kiya hai
     if '--' in input_str:
         return [input_str.split('--')[-1].strip()]
-    # Agar Auto-Merge list set hai
     if admin_id in auto_merge_db and auto_merge_db[admin_id]:
         return auto_merge_db[admin_id]
     return [input_str.strip()]
 
 # --- Database Management ---
 def load_user_data():
-    if not os.path.exists(DATA_FILE):
-        return {"_settings": DEFAULT_SETTINGS}
-    try:
-        with open(DATA_FILE, 'r') as f:
-            data = json.load(f)
-            if "_settings" not in data: 
-                data["_settings"] = DEFAULT_SETTINGS
-            return data
-    except Exception as e:
-        logger.error(f"Error loading DB: {e}")
-        return {"_settings": DEFAULT_SETTINGS}
+    with db_lock:
+        if not os.path.exists(DATA_FILE):
+            return {"_settings": DEFAULT_SETTINGS}
+        try:
+            with open(DATA_FILE, 'r') as f:
+                data = json.load(f)
+                if "_settings" not in data: 
+                    data["_settings"] = DEFAULT_SETTINGS
+                return data
+        except Exception as e:
+            logger.error(f"Error loading DB: {e}")
+            return {"_settings": DEFAULT_SETTINGS}
 
 def save_user_data(data):
-    try:
-        with open(DATA_FILE, 'w') as f:
-            json.dump(data, f, indent=4)
-    except Exception as e:
-        logger.error(f"Error saving DB: {e}")
+    with db_lock:
+        try:
+            with open(DATA_FILE, 'w') as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            logger.error(f"Error saving DB: {e}")
 
 def get_user_rank(user_id, data):
     users = {k: v for k, v in data.items() if k != "_settings"}
@@ -274,7 +275,7 @@ def main():
     app.add_handler(MessageHandler(filters.Regex(r'✅ Tasks'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["tasks_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.Regex(r'📞 Support'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["support_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS), handle_admin_actions))
-    print("✅ Bot is Online with Multiple Target Merge Support!")
+    print("✅ Bot is Online with Thread-Safe DB and Auto-Merge Support!")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
