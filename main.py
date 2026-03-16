@@ -79,19 +79,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     data = load_user_data()
     
     if user_id not in data and user.id not in ADMIN_USER_IDS:
-        data[user_id] = {
-            'points': 0,
-            'username': user.username or user.first_name,
-            'first_name': user.first_name
-        }
+        data[user_id] = {'points': 0, 'username': user.username or user.first_name, 'first_name': user.first_name}
         save_user_data(data)
 
-    kb = [
-        [KeyboardButton("💳 My Account")],
-        [KeyboardButton("🏆 Leaderboard"), KeyboardButton("✅ Tasks")],
-        [KeyboardButton("📞 Support")]
-    ]
-    
+    kb = [[KeyboardButton("💳 My Account")], [KeyboardButton("🏆 Leaderboard"), KeyboardButton("✅ Tasks")], [KeyboardButton("📞 Support")]]
     msg = data["_settings"].get("start_message", DEFAULT_SETTINGS["start_message"])
     await update.message.reply_text(msg, reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), parse_mode='Markdown')
 
@@ -101,45 +92,24 @@ async def my_account(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     user_info = data.get(user_id, {'points': 0})
     rank = get_user_rank(user_id, data)
     total_users = len([k for k in data.keys() if k != "_settings"])
-
-    msg = (
-        f"👤 *USER ACCOUNT INFO*\n"
-        f"━━━━━━━━━━━━━━━━━━\n"
-        f"🆔 *ID:* `{user_id}`\n"
-        f"💰 *Balance:* `{user_info['points']} Pts`\n"
-        f"🏆 *Global Rank:* `{rank}`\n"
-        f"👥 *Total Users:* `{total_users}`"
-    )
+    msg = f"👤 *USER ACCOUNT INFO*\n━━━━━━━━━━━━━━━━━━\n🆔 *ID:* `{user_id}`\n💰 *Balance:* `{user_info['points']} Pts`\n🏆 *Global Rank:* `{rank}`\n👥 *Total Users:* `{total_users}`"
     await update.message.reply_text(msg, parse_mode='Markdown')
 
 async def show_leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     data = load_user_data()
     settings = data["_settings"]
     users = {k: v for k, v in data.items() if k != "_settings" and v.get('points', 0) > 0}
-    
-    if not users:
-        await update.message.reply_text("⚠️ *Leaderboard is currently empty!*", parse_mode='Markdown')
-        return
-
+    if not users: return await update.message.reply_text("⚠️ *Leaderboard is currently empty!*", parse_mode='Markdown')
     sorted_u = sorted(users.items(), key=lambda x: x[1].get('points', 0), reverse=True)[:settings["leaderboard_size"]]
-    
     msg = f"{settings['leaderboard_header']}\n━━━━━━━━━━━━━━━━━━\n"
     for i, (uid, info) in enumerate(sorted_u, 1):
-        name = info.get('username') or info.get('first_name') or f"User {uid}"
-        msg += f"*{i}.* {name} — `{info['points']} Pts`\n"
-    
+        msg += f"*{i}.* {info.get('username') or info.get('first_name')} — `{info['points']} Pts`\n"
     await update.message.reply_text(msg, parse_mode='Markdown')
 
 # --- Admin Handlers ---
 async def admin_panel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user.id not in ADMIN_USER_IDS: return
-    kb = [
-        [KeyboardButton("🚀 Fast Add"), KeyboardButton("📢 Broadcast")],
-        [KeyboardButton("➕ Add Points"), KeyboardButton("➖ Remove Points")],
-        [KeyboardButton("📝 Edit Tasks"), KeyboardButton("📞 Edit Support")],
-        [KeyboardButton("⭐ Edit Start"), KeyboardButton("📝 Edit Header")],
-        [KeyboardButton("🔙 Close Admin Panel")]
-    ]
+    kb = [[KeyboardButton("🚀 Fast Add"), KeyboardButton("📢 Broadcast")], [KeyboardButton("➕ Add Points"), KeyboardButton("➖ Remove Points")], [KeyboardButton("📝 Edit Tasks"), KeyboardButton("📞 Edit Support")], [KeyboardButton("⭐ Edit Start"), KeyboardButton("📝 Edit Header")], [KeyboardButton("🔙 Close Admin Panel")]]
     await update.message.reply_text("👑 *ADMIN PANEL*", reply_markup=ReplyKeyboardMarkup(kb, resize_keyboard=True), parse_mode='Markdown')
 
 async def show_full_database(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -147,7 +117,6 @@ async def show_full_database(update: Update, context: ContextTypes.DEFAULT_TYPE)
     data = load_user_data()
     users = {k: v for k, v in data.items() if k != "_settings"}
     if not users: return await update.message.reply_text("📭 Empty.")
-    
     msg = "📂 *USER DATABASE*\n"
     for uid, info in sorted(users.items(), key=lambda x: x[1].get('points', 0), reverse=True):
         line = f"• `{uid}` | `{info.get('points', 0)}` Pts\n"
@@ -157,12 +126,14 @@ async def show_full_database(update: Update, context: ContextTypes.DEFAULT_TYPE)
         msg += line
     if msg: await update.message.reply_text(msg, parse_mode='Markdown')
 
+
+
 async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     admin_id = update.effective_user.id
     if admin_id not in ADMIN_USER_IDS: return
     text, data, mode = update.message.text, load_user_data(), context.user_data.get('mode')
 
-    # Fast Add Logic
+    # Fast Add Initiation
     if text == "🚀 Fast Add":
         context.user_data['mode'] = 'fa_pts'
         return await update.message.reply_text("🔢 *Points to add?*")
@@ -173,18 +144,37 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
                 if uid not in data: data[uid] = {'points': 0, 'username': f"User {uid}", 'first_name': "N/A"}
                 data[uid]['points'] += info['points']
             save_user_data(data)
-            await update.message.reply_text(f"✅ Success: {len(info['ids'])} users updated.")
+            await update.message.reply_text(f"✅ Success: Updated {len(info['ids'])} users.")
             del fast_add_cache[admin_id]
             context.user_data.clear()
             return await admin_panel(update, context)
 
-    # Manual Add/Remove Logic
-    elif text == "➕ Add Points":
-        context.user_data['mode'] = 'manual_add'
-        return await update.message.reply_text("Send: `UserID Points`\n(Example: `1234567 10`)", parse_mode='Markdown')
-    elif text == "➖ Remove Points":
-        context.user_data['mode'] = 'manual_rem'
-        return await update.message.reply_text("Send: `UserID Points`\n(Example: `1234567 10`)", parse_mode='Markdown')
+    # Manual Add/Remove Buttons
+    elif text == "➕ Add Points": context.user_data['mode'] = 'manual_add'; return await update.message.reply_text("Send: `UserID Points`")
+    elif text == "➖ Remove Points": context.user_data['mode'] = 'manual_rem'; return await update.message.reply_text("Send: `UserID Points`")
+
+    # Broadcast Start
+    elif text == "📢 Broadcast":
+        context.user_data['mode'] = 'bc_input'
+        return await update.message.reply_text("📢 *Enter the message to broadcast:*")
+
+    # Broadcast Confirm Logic
+    elif mode == 'bc_input':
+        context.user_data['bc_msg'] = text
+        context.user_data['mode'] = 'bc_confirm'
+        await update.message.reply_text(f"📢 *PREVIEW:*\n\n*{text}*\n\n✅ Confirm to send?", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Confirm & Send")], [KeyboardButton("🔙 Close Admin Panel")]], resize_keyboard=True), parse_mode='Markdown')
+        return
+
+    elif mode == 'bc_confirm':
+        if text == "✅ Confirm & Send":
+            msg_to_send = f"*{context.user_data.get('bc_msg')}*"
+            count = 0
+            for u in [k for k in data.keys() if k != "_settings"]:
+                try: await context.bot.send_message(u, msg_to_send, parse_mode='Markdown'); count += 1
+                except: pass
+            await update.message.reply_text(f"✅ *Broadcast Sent to {count} users!*", parse_mode='Markdown')
+            context.user_data.clear()
+            return await admin_panel(update, context)
 
     # Processing Modes
     if mode == 'fa_pts':
@@ -192,10 +182,10 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
             fast_add_cache[admin_id] = {"points": int(text), "ids": set()}
             context.user_data['mode'] = 'fa_collect'
             await update.message.reply_text("📥 Forward messages then click Done.", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Done (Process)")]], resize_keyboard=True))
-        except: await update.message.reply_text("Enter valid number!")
+        except: await update.message.reply_text("Enter number!")
     elif mode == 'fa_collect' and text != "✅ Done (Process)":
         for fid in re.findall(r'(\d{8,12})', text): fast_add_cache[admin_id]['ids'].add(fid)
-        await update.message.reply_text(f"Total Unique: {len(fast_add_cache[admin_id]['ids'])}")
+        await update.message.reply_text(f"📥 Total Unique IDs: {len(fast_add_cache[admin_id]['ids'])}")
     
     elif mode in ['manual_add', 'manual_rem']:
         try:
@@ -205,30 +195,24 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
             if mode == 'manual_add': data[uid]['points'] += pts
             else: data[uid]['points'] = max(0, data[uid]['points'] - pts)
             save_user_data(data)
-            await update.message.reply_text(f"✅ User `{uid}` updated. Balance: `{data[uid]['points']}`", parse_mode='Markdown')
+            await update.message.reply_text(f"✅ User `{uid}` updated. New Balance: `{data[uid]['points']}`", parse_mode='Markdown')
             context.user_data.clear()
             await admin_panel(update, context)
-        except: await update.message.reply_text("❌ Galat format! Format: `UserID Points`")
+        except: await update.message.reply_text("❌ Galat format! Use: `UserID Points`")
 
-    # Settings Actions
-    elif text == "🔙 Close Admin Panel": await start(update, context)
+    elif text == "🔙 Close Admin Panel": context.user_data.clear(); await start(update, context)
     elif text == "📝 Edit Tasks": context.user_data['mode'] = 'et'; await update.message.reply_text("New Tasks:")
     elif text == "📞 Edit Support": context.user_data['mode'] = 'es'; await update.message.reply_text("New Support:")
-    elif text == "⭐ Edit Start": context.user_data['mode'] = 'e_st'; await update.message.reply_text("New Start Message:")
+    elif text == "⭐ Edit Start": context.user_data['mode'] = 'e_st'; await update.message.reply_text("New Start Msg:")
     elif text == "📝 Edit Header": context.user_data['mode'] = 'e_hd'; await update.message.reply_text("New Header:")
-    elif text == "📢 Broadcast": context.user_data['mode'] = 'bc'; await update.message.reply_text("Msg:")
-    elif mode:
+    elif mode and mode not in ['bc_input', 'bc_confirm']:
         m = context.user_data.pop('mode')
         if m == 'et': data["_settings"]["tasks_message"] = text
         elif m == 'es': data["_settings"]["support_message"] = text
         elif m == 'e_st': data["_settings"]["start_message"] = text
         elif m == 'e_hd': data["_settings"]["leaderboard_header"] = text
-        elif m == 'bc':
-            for u in [k for k in data.keys() if k != "_settings"]:
-                try: await context.bot.send_message(u, text, parse_mode='Markdown')
-                except: pass
         save_user_data(data)
-        await update.message.reply_text("✅ Updated!")
+        await update.message.reply_text("✅ Updated Successfully!")
         await admin_panel(update, context)
 
 # --- Main ---
