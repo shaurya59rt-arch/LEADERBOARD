@@ -1,100 +1,494 @@
 {
     "_settings": {
         "leaderboard_size": 10,
-        "leaderboard_header": "🏆 *MONKXZ GLOBAL LEADERBOARD* 🏆",
-        "support_message": "📞 *Support:* @YourSupportUsername",
-        "start_message": "🚀 *Welcome to MONKXZ LEADERBOARD BOT!*\n\nEarn points by completing tasks and climb the global rank.",
-        "tasks_message": "📝 *VALID TASKS TO EARN POINTS:*\n\n1. Subscribe our Channel\n2. Share with 5 Friends\n3. Use our official bot daily!"
+        "leaderboard_header": "\ud83c\udfc6 *MONKXZ GLOBAL LEADERBOARD* \ud83c\udfc6",
+        "support_message": "\"Should you have any queries or require further assistance, please feel free to reach out. We are always here to help.\"\ud83e\udee1\ud83e\udee1\n\n\ud83d\udcde CONTACT : @HYDRAABUNNY \ud83e\udee1",
+        "start_message": "\ud83d\ude80 *Welcome to MONKXZ LEADERBOARD BOT!*\n\nEarn points by completing tasks and climb the global rank.",
+        "tasks_message": "\ud83c\udf89 Welcome to the Monk Event Bot!!! \ud83d\udcb0\ud83d\udd25\n\ud83d\ude80 Earn 1 point for 1 refer \ud83d\ude0a\n\ud83d\ude0a 1 refer = 1 point \ud83d\ude03\n\ud83e\udea9More than 1 refer = more points = more winning chances \ud83d\udcb0"
     },
-    "7055400712": {"points": 20, "username": "User 7055400712", "first_name": "N/A"},
-    "7424246777": {"points": 11, "username": "User 7424246777", "first_name": "N/A"},
-    "5598242404": {"points": 9, "username": "User 5598242404", "first_name": "N/A"},
-    "5575819425": {"points": 7, "username": "User 5575819425", "first_name": "N/A"},
-    "7235729709": {"points": 6, "username": "User 7235729709", "first_name": "N/A"},
-    "7944746107": {"points": 5, "username": "User 7944746107", "first_name": "N/A"},
-    "5345774018": {"points": 4, "username": "User 5345774018", "first_name": "N/A"},
-    "8427776458": {"points": 4, "username": "User 8427776458", "first_name": "N/A"},
-    "8331951125": {"points": 4, "username": "User 8331951125", "first_name": "N/A"},
-    "1395505281": {"points": 3, "username": "User 1395505281", "first_name": "N/A"},
-    "6042244967": {"points": 3, "username": "User 6042244967", "first_name": "N/A"},
-    "5923215267": {"points": 3, "username": "User 5923215267", "first_name": "N/A"},
-    "7132418789": {"points": 3, "username": "User 7132418789", "first_name": "N/A"},
-    "1825893796": {"points": 3, "username": "User 1825893796", "first_name": "N/A"},
-    "7592906296": {"points": 2, "username": "User 7592906296", "first_name": "N/A"},
-    "2052153747": {"points": 2, "username": "User 2052153747", "first_name": "N/A"},
-    "6567286459": {"points": 2, "username": "User 6567286459", "first_name": "N/A"},
-    "7912364246": {"points": 2, "username": "User 7912364246", "first_name": "N/A"},
-    "6100668873": {"points": 2, "username": "User 6100668873", "first_name": "N/A"},
-    "7674564044": {"points": 2, "username": "User 7674564044", "first_name": "N/A"},
-    "914279213": {"points": 2, "username": "User 914279213", "first_name": "N/A"},
-    "7387484129": {"points": 2, "username": "User 7387484129", "first_name": "N/A"},
-    "6912968597": {"points": 2, "username": "User 6912968597", "first_name": "N/A"},
-    "6823215126": {"points": 2, "username": "User 6823215126", "first_name": "N/A"},
-    "5959047408": {"points": 2, "username": "User 5959047408", "first_name": "N/A"},
-    "6386505273": {"points": 2, "username": "User 6386505273", "first_name": "N/A"},
-    "7286788473": {"points": 2, "username": "User 7286788473", "first_name": "N/A"},
-    "1873876479": {"points": 2, "username": "User 1873876479", "first_name": "N/A"},
-    "6537783818": {"points": 1, "username": "User 6537783818", "first_name": "N/A"},
-    "7355379008": {"points": 1, "username": "User 7355379008", "first_name": "N/A"},
-    "7276040239": {"points": 1, "username": "User 7276040239", "first_name": "N/A"},
-    "7880740015": {"points": 1, "username": "User 7880740015", "first_name": "N/A"},
-    "5267371240": {"points": 1, "username": "User 5267371240", "first_name": "N/A"},
-    "5420912586": {"points": 1, "username": "User 5420912586", "first_name": "N/A"},
-    "6020154553": {"points": 1, "username": "User 6020154553", "first_name": "N/A"},
-    "6925391837": {"points": 1, "username": "User 6925391837", "first_name": "N/A"},
-    "7996571721": {"points": 1, "username": "User 7996571721", "first_name": "N/A"},
-    "7558794064": {"points": 1, "username": "User 7558794064", "first_name": "N/A"},
-    "7115332370": {"points": 1, "username": "User 7115332370", "first_name": "N/A"},
-    "8527017616": {"points": 1, "username": "User 8527017616", "first_name": "N/A"},
-    "5957029012": {"points": 1, "username": "User 5957029012", "first_name": "N/A"},
-    "7011969612": {"points": 1, "username": "User 7011969612", "first_name": "N/A"},
-    "8028174918": {"points": 1, "username": "User 8028174918", "first_name": "N/A"},
-    "7858909070": {"points": 1, "username": "User 7858909070", "first_name": "N/A"},
-    "5413951617": {"points": 1, "username": "User 5413951617", "first_name": "N/A"},
-    "8084690909": {"points": 1, "username": "User 8084690909", "first_name": "N/A"},
-    "7518084232": {"points": 1, "username": "User 7518084232", "first_name": "N/A"},
-    "6441882461": {"points": 1, "username": "User 6441882461", "first_name": "N/A"},
-    "8516986899": {"points": 1, "username": "User 8516986899", "first_name": "N/A"},
-    "7801969485": {"points": 1, "username": "User 7801969485", "first_name": "N/A"},
-    "8183824486": {"points": 1, "username": "User 8183824486", "first_name": "N/A"},
-    "1513687843": {"points": 1, "username": "User 1513687843", "first_name": "N/A"},
-    "7031318501": {"points": 1, "username": "User 7031318501", "first_name": "N/A"},
-    "8745008899": {"points": 1, "username": "User 8745008899", "first_name": "N/A"},
-    "8425895131": {"points": 1, "username": "User 8425895131", "first_name": "N/A"},
-    "6182742868": {"points": 1, "username": "User 6182742868", "first_name": "N/A"},
-    "7590662845": {"points": 1, "username": "User 7590662845", "first_name": "N/A"},
-    "7919952014": {"points": 1, "username": "User 7919952014", "first_name": "N/A"},
-    "5831410648": {"points": 0, "username": "User 5831410648", "first_name": "N/A"},
-    "8417778229": {"points": 0, "username": "User 8417778229", "first_name": "N/A"},
-    "6526414300": {"points": 0, "username": "User 6526414300", "first_name": "N/A"},
-    "6507066320": {"points": 0, "username": "User 6507066320", "first_name": "N/A"},
-    "8232090382": {"points": 0, "username": "User 8232090382", "first_name": "N/A"},
-    "5941248475": {"points": 0, "username": "User 5941248475", "first_name": "N/A"},
-    "8380251037": {"points": 0, "username": "User 8380251037", "first_name": "N/A"},
-    "6611779172": {"points": 0, "username": "User 6611779172", "first_name": "N/A"},
-    "6000971026": {"points": 0, "username": "User 6000971026", "first_name": "N/A"},
-    "5872767458": {"points": 0, "username": "User 5872767458", "first_name": "N/A"},
-    "8211542182": {"points": 0, "username": "User 8211542182", "first_name": "N/A"},
-    "8395260323": {"points": 0, "username": "User 8395260323", "first_name": "N/A"},
-    "2002109807": {"points": 0, "username": "User 2002109807", "first_name": "N/A"},
-    "6726835497": {"points": 0, "username": "User 6726835497", "first_name": "N/A"},
-    "8196917473": {"points": 0, "username": "User 8196917473", "first_name": "N/A"},
-    "8336781127": {"points": 0, "username": "User 8336781127", "first_name": "N/A"},
-    "7034916002": {"points": 0, "username": "User 7034916002", "first_name": "N/A"},
-    "7796537436": {"points": 0, "username": "User 7796537436", "first_name": "N/A"},
-    "7594379196": {"points": 0, "username": "User 7594379196", "first_name": "N/A"},
-    "8118507410": {"points": 0, "username": "User 8118507410", "first_name": "N/A"},
-    "6970779071": {"points": 0, "username": "User 6970779071", "first_name": "N/A"},
-    "7862431950": {"points": 0, "username": "User 7862431950", "first_name": "N/A"},
-    "6196875596": {"points": 0, "username": "User 6196875596", "first_name": "N/A"},
-    "6924521214": {"points": 0, "username": "User 6924521214", "first_name": "N/A"},
-    "1940709426": {"points": 0, "username": "User 1940709426", "first_name": "N/A"},
-    "1872848003": {"points": 0, "username": "User 1872848003", "first_name": "N/A"},
-    "8272180458": {"points": 0, "username": "User 8272180458", "first_name": "N/A"},
-    "5508252333": {"points": 0, "username": "User 5508252333", "first_name": "N/A"},
-    "6245324667": {"points": 0, "username": "User 6245324667", "first_name": "N/A"},
-    "7159038420": {"points": 0, "username": "User 7159038420", "first_name": "N/A"},
-    "7898546012": {"points": 0, "username": "User 7898546012", "first_name": "N/A"},
-    "5353632522": {"points": 0, "username": "User 5353632522", "first_name": "N/A"},
-    "6946300594": {"points": 0, "username": "User 6946300594", "first_name": "N/A"}
+    "7055400712": {
+        "points": 27.0,
+        "username": "User 7055400712",
+        "first_name": "N/A"
+    },
+    "7424246777": {
+        "points": 11,
+        "username": "User 7424246777",
+        "first_name": "N/A"
+    },
+    "5598242404": {
+        "points": 9,
+        "username": "User 5598242404",
+        "first_name": "N/A"
+    },
+    "5575819425": {
+        "points": 7,
+        "username": "User 5575819425",
+        "first_name": "N/A"
+    },
+    "7235729709": {
+        "points": 8.0,
+        "username": "User 7235729709",
+        "first_name": "N/A"
+    },
+    "7944746107": {
+        "points": 6.0,
+        "username": "User 7944746107",
+        "first_name": "N/A"
+    },
+    "5345774018": {
+        "points": 8.0,
+        "username": "User 5345774018",
+        "first_name": "N/A"
+    },
+    "8427776458": {
+        "points": 4,
+        "username": "User 8427776458",
+        "first_name": "N/A"
+    },
+    "8331951125": {
+        "points": 4,
+        "username": "User 8331951125",
+        "first_name": "N/A"
+    },
+    "1395505281": {
+        "points": 3,
+        "username": "User 1395505281",
+        "first_name": "N/A"
+    },
+    "6042244967": {
+        "points": 3,
+        "username": "User 6042244967",
+        "first_name": "N/A"
+    },
+    "5923215267": {
+        "points": 3,
+        "username": "User 5923215267",
+        "first_name": "N/A"
+    },
+    "7132418789": {
+        "points": 3,
+        "username": "User 7132418789",
+        "first_name": "N/A"
+    },
+    "1825893796": {
+        "points": 3,
+        "username": "User 1825893796",
+        "first_name": "N/A"
+    },
+    "7592906296": {
+        "points": 2,
+        "username": "User 7592906296",
+        "first_name": "N/A"
+    },
+    "2052153747": {
+        "points": 2,
+        "username": "User 2052153747",
+        "first_name": "N/A"
+    },
+    "6567286459": {
+        "points": 2,
+        "username": "User 6567286459",
+        "first_name": "N/A"
+    },
+    "7912364246": {
+        "points": 2,
+        "username": "User 7912364246",
+        "first_name": "N/A"
+    },
+    "6100668873": {
+        "points": 2,
+        "username": "User 6100668873",
+        "first_name": "N/A"
+    },
+    "7674564044": {
+        "points": 2,
+        "username": "User 7674564044",
+        "first_name": "N/A"
+    },
+    "914279213": {
+        "points": 2,
+        "username": "User 914279213",
+        "first_name": "N/A"
+    },
+    "7387484129": {
+        "points": 2,
+        "username": "User 7387484129",
+        "first_name": "N/A"
+    },
+    "6912968597": {
+        "points": 3.0,
+        "username": "User 6912968597",
+        "first_name": "N/A"
+    },
+    "6823215126": {
+        "points": 2,
+        "username": "User 6823215126",
+        "first_name": "N/A"
+    },
+    "5959047408": {
+        "points": 2,
+        "username": "User 5959047408",
+        "first_name": "N/A"
+    },
+    "6386505273": {
+        "points": 2,
+        "username": "User 6386505273",
+        "first_name": "N/A"
+    },
+    "7286788473": {
+        "points": 2,
+        "username": "User 7286788473",
+        "first_name": "N/A"
+    },
+    "1873876479": {
+        "points": 2,
+        "username": "User 1873876479",
+        "first_name": "N/A"
+    },
+    "6537783818": {
+        "points": 1,
+        "username": "User 6537783818",
+        "first_name": "N/A"
+    },
+    "7355379008": {
+        "points": 1,
+        "username": "User 7355379008",
+        "first_name": "N/A"
+    },
+    "7276040239": {
+        "points": 3.0,
+        "username": "User 7276040239",
+        "first_name": "N/A"
+    },
+    "7880740015": {
+        "points": 1,
+        "username": "User 7880740015",
+        "first_name": "N/A"
+    },
+    "5267371240": {
+        "points": 1,
+        "username": "User 5267371240",
+        "first_name": "N/A"
+    },
+    "5420912586": {
+        "points": 1,
+        "username": "User 5420912586",
+        "first_name": "N/A"
+    },
+    "6020154553": {
+        "points": 1,
+        "username": "User 6020154553",
+        "first_name": "N/A"
+    },
+    "6925391837": {
+        "points": 1,
+        "username": "User 6925391837",
+        "first_name": "N/A"
+    },
+    "7996571721": {
+        "points": 1,
+        "username": "User 7996571721",
+        "first_name": "N/A"
+    },
+    "7558794064": {
+        "points": 1,
+        "username": "User 7558794064",
+        "first_name": "N/A"
+    },
+    "7115332370": {
+        "points": 1,
+        "username": "User 7115332370",
+        "first_name": "N/A"
+    },
+    "8527017616": {
+        "points": 1,
+        "username": "User 8527017616",
+        "first_name": "N/A"
+    },
+    "5957029012": {
+        "points": 1,
+        "username": "User 5957029012",
+        "first_name": "N/A"
+    },
+    "7011969612": {
+        "points": 1,
+        "username": "User 7011969612",
+        "first_name": "N/A"
+    },
+    "8028174918": {
+        "points": 1,
+        "username": "User 8028174918",
+        "first_name": "N/A"
+    },
+    "7858909070": {
+        "points": 1,
+        "username": "User 7858909070",
+        "first_name": "N/A"
+    },
+    "5413951617": {
+        "points": 1,
+        "username": "User 5413951617",
+        "first_name": "N/A"
+    },
+    "8084690909": {
+        "points": 1,
+        "username": "User 8084690909",
+        "first_name": "N/A"
+    },
+    "7518084232": {
+        "points": 1,
+        "username": "User 7518084232",
+        "first_name": "N/A"
+    },
+    "6441882461": {
+        "points": 1,
+        "username": "User 6441882461",
+        "first_name": "N/A"
+    },
+    "8516986899": {
+        "points": 1,
+        "username": "User 8516986899",
+        "first_name": "N/A"
+    },
+    "7801969485": {
+        "points": 1,
+        "username": "User 7801969485",
+        "first_name": "N/A"
+    },
+    "8183824486": {
+        "points": 1,
+        "username": "User 8183824486",
+        "first_name": "N/A"
+    },
+    "1513687843": {
+        "points": 2.0,
+        "username": "User 1513687843",
+        "first_name": "N/A"
+    },
+    "7031318501": {
+        "points": 1,
+        "username": "User 7031318501",
+        "first_name": "N/A"
+    },
+    "8745008899": {
+        "points": 1,
+        "username": "User 8745008899",
+        "first_name": "N/A"
+    },
+    "8425895131": {
+        "points": 1,
+        "username": "User 8425895131",
+        "first_name": "N/A"
+    },
+    "6182742868": {
+        "points": 1,
+        "username": "User 6182742868",
+        "first_name": "N/A"
+    },
+    "7590662845": {
+        "points": 1,
+        "username": "User 7590662845",
+        "first_name": "N/A"
+    },
+    "7919952014": {
+        "points": 1,
+        "username": "User 7919952014",
+        "first_name": "N/A"
+    },
+    "5831410648": {
+        "points": 0,
+        "username": "User 5831410648",
+        "first_name": "N/A"
+    },
+    "8417778229": {
+        "points": 0,
+        "username": "User 8417778229",
+        "first_name": "N/A"
+    },
+    "6526414300": {
+        "points": 0,
+        "username": "User 6526414300",
+        "first_name": "N/A"
+    },
+    "6507066320": {
+        "points": 0,
+        "username": "User 6507066320",
+        "first_name": "N/A"
+    },
+    "8232090382": {
+        "points": 0,
+        "username": "User 8232090382",
+        "first_name": "N/A"
+    },
+    "5941248475": {
+        "points": 0,
+        "username": "User 5941248475",
+        "first_name": "N/A"
+    },
+    "8380251037": {
+        "points": 0,
+        "username": "User 8380251037",
+        "first_name": "N/A"
+    },
+    "6611779172": {
+        "points": 0,
+        "username": "User 6611779172",
+        "first_name": "N/A"
+    },
+    "6000971026": {
+        "points": 0,
+        "username": "User 6000971026",
+        "first_name": "N/A"
+    },
+    "5872767458": {
+        "points": 0,
+        "username": "User 5872767458",
+        "first_name": "N/A"
+    },
+    "8211542182": {
+        "points": 0,
+        "username": "User 8211542182",
+        "first_name": "N/A"
+    },
+    "8395260323": {
+        "points": 0,
+        "username": "User 8395260323",
+        "first_name": "N/A"
+    },
+    "2002109807": {
+        "points": 0,
+        "username": "User 2002109807",
+        "first_name": "N/A"
+    },
+    "6726835497": {
+        "points": 0,
+        "username": "User 6726835497",
+        "first_name": "N/A"
+    },
+    "8196917473": {
+        "points": 0,
+        "username": "User 8196917473",
+        "first_name": "N/A"
+    },
+    "8336781127": {
+        "points": 0,
+        "username": "User 8336781127",
+        "first_name": "N/A"
+    },
+    "7034916002": {
+        "points": 0,
+        "username": "User 7034916002",
+        "first_name": "N/A"
+    },
+    "7796537436": {
+        "points": 0,
+        "username": "User 7796537436",
+        "first_name": "N/A"
+    },
+    "7594379196": {
+        "points": 0,
+        "username": "User 7594379196",
+        "first_name": "N/A"
+    },
+    "8118507410": {
+        "points": 0,
+        "username": "User 8118507410",
+        "first_name": "N/A"
+    },
+    "6970779071": {
+        "points": 0,
+        "username": "User 6970779071",
+        "first_name": "N/A"
+    },
+    "7862431950": {
+        "points": 0,
+        "username": "User 7862431950",
+        "first_name": "N/A"
+    },
+    "6196875596": {
+        "points": 0,
+        "username": "User 6196875596",
+        "first_name": "N/A"
+    },
+    "6924521214": {
+        "points": 0,
+        "username": "User 6924521214",
+        "first_name": "N/A"
+    },
+    "1940709426": {
+        "points": 0,
+        "username": "User 1940709426",
+        "first_name": "N/A"
+    },
+    "1872848003": {
+        "points": 0,
+        "username": "User 1872848003",
+        "first_name": "N/A"
+    },
+    "8272180458": {
+        "points": 0,
+        "username": "User 8272180458",
+        "first_name": "N/A"
+    },
+    "5508252333": {
+        "points": 0,
+        "username": "User 5508252333",
+        "first_name": "N/A"
+    },
+    "6245324667": {
+        "points": 0,
+        "username": "User 6245324667",
+        "first_name": "N/A"
+    },
+    "7159038420": {
+        "points": 0,
+        "username": "User 7159038420",
+        "first_name": "N/A"
+    },
+    "7898546012": {
+        "points": 0,
+        "username": "User 7898546012",
+        "first_name": "N/A"
+    },
+    "5353632522": {
+        "points": 0,
+        "username": "User 5353632522",
+        "first_name": "N/A"
+    },
+    "6946300594": {
+        "points": 0,
+        "username": "User 6946300594",
+        "first_name": "N/A"
+    },
+    "6266177001": {
+        "points": 2.0,
+        "username": "OnlyGodsDEV",
+        "first_name": "\u2022\u00b0\u2022\u00b0\u2601\ud835\udc0e\ud835\ude63\u0e43\u02b8\u0193\u0151\ud835\ude25\ud835\uddcc\ud835\udc6b\u0116\u13c9\u2601\u00b0\u2022\u00b0\u2022"
+    },
+    "8158560910": {
+        "points": 0,
+        "username": "DIPAKJI_OWNER",
+        "first_name": "\u1d39\u1d3f \u4e42 DIPAK JI \u2602\ufe0f"
+    },
+    "8457157544": {
+        "points": 0,
+        "username": "ExpertNxt",
+        "first_name": "\u23e4\u035f\u035e\u035f\u035e \ud835\uddd8\ud835\ude05\ud835\uddfd\ud835\uddf2\ud835\uddff\ud835\ude01 \ud835\udde3\ud835\uddff\ud835\uddf6\ud835\uddfa\ud835\uddf2"
+    },
+    "7381271275": {
+        "points": 0,
+        "username": "Princemodhr",
+        "first_name": "Prince"
+    },
+    "6322227357": {
+        "points": 0,
+        "username": "Arshx637",
+        "first_name": "\ud835\udde7\ud835\udddb\ud835\uddd8 \ud835\uddd4\ud835\udde5\ud835\udde6\ud835\udddb I\u20e0"
+    },
+    "7316459575": {
+        "points": 1.0,
+        "username": "User 7316459575",
+        "first_name": "N/A"
+    }
 }
