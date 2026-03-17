@@ -38,7 +38,7 @@ DEFAULT_SETTINGS = {
 }
 
 fast_add_cache = {} 
-auto_merge_db = {} # Format: {source_id: target_id}
+auto_merge_db = {} 
 
 # --- Helper Logic ---
 def get_final_target(uid):
@@ -78,6 +78,39 @@ def get_user_rank(user_id, data):
     for index, (uid, info) in enumerate(sorted_users, 1):
         if uid == str(user_id): return index
     return "N/A"
+
+# --- Advanced Live Broadcast Task ---
+async def run_broadcast(context, status_msg, user_list, broadcast_text):
+    success, failed = 0, 0
+    total = len(user_list)
+    
+    for i, uid in enumerate(user_list, 1):
+        try:
+            await context.bot.send_message(chat_id=uid, text=broadcast_text, parse_mode='Markdown')
+            success += 1
+        except Exception:
+            failed += 1
+        
+        # Update status every 15 users to avoid rate limits
+        if i % 15 == 0 or i == total:
+            try:
+                await status_msg.edit_text(
+                    f"📢 *Broadcast in Progress...*\n\n"
+                    f"✅ Success: `{success}`\n"
+                    f"❌ Failed: `{failed}`\n"
+                    f"📊 Total Processed: `{i}/{total}`",
+                    parse_mode='Markdown'
+                )
+            except: pass
+        await asyncio.sleep(0.05) # Small delay to prevent flood
+    
+    await status_msg.edit_text(
+        f"✅ *Broadcast Completed!*\n\n"
+        f"🟢 Delivered: `{success}`\n"
+        f"🔴 Failed: `{failed}`\n"
+        f"👥 Total Users: `{total}`",
+        parse_mode='Markdown'
+    )
 
 # --- Core Handlers ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -224,20 +257,26 @@ async def handle_admin_actions(update: Update, context: ContextTypes.DEFAULT_TYP
             save_user_data(data); await update.message.reply_text("✅ Updated."); context.user_data.clear(); return await admin_panel(update, context)
         except: await update.message.reply_text("❌ Error! Format: `UserID Points`")
 
-    # --- Broadcast & Settings ---
+    # --- Broadcast (FIXED with LIVE STATS) ---
     elif text == "📢 Broadcast":
         context.user_data['mode'] = 'bc_input'
         return await update.message.reply_text("📢 *Enter message to broadcast:*")
+    
     elif mode == 'bc_input':
-        context.user_data['bc_msg'] = text; context.user_data['mode'] = 'bc_confirm'
-        await update.message.reply_text(f"📢 *PREVIEW:*\n\n*{text}*", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Confirm & Send")]], resize_keyboard=True))
+        context.user_data['bc_msg'] = text
+        context.user_data['mode'] = 'bc_confirm'
+        await update.message.reply_text(f"📢 *PREVIEW:*\n\n{text}", reply_markup=ReplyKeyboardMarkup([[KeyboardButton("✅ Confirm & Send")]], resize_keyboard=True))
+    
     elif mode == 'bc_confirm' and text == "✅ Confirm & Send":
-        msg = f"*{context.user_data.get('bc_msg')}*"
-        count = 0
-        for u in [k for k in data.keys() if k != "_settings"]:
-            try: await context.bot.send_message(u, msg, parse_mode='Markdown'); count += 1
-            except: pass
-        await update.message.reply_text(f"✅ Sent to {count} users!"); context.user_data.clear(); return await admin_panel(update, context)
+        msg_text = context.user_data.get('bc_msg')
+        user_list = [k for k in data.keys() if k != "_settings"]
+        
+        status_msg = await update.message.reply_text("🚀 *Broadcast Started...*", parse_mode='Markdown')
+        # Background task for live stats
+        asyncio.create_task(run_broadcast(context, status_msg, user_list, msg_text))
+        
+        context.user_data.clear()
+        return await admin_panel(update, context)
 
     elif text == "🔙 Close Admin Panel": context.user_data.clear(); await start(update, context)
     elif text == "📝 Edit Tasks": context.user_data['mode'] = 'et'; await update.message.reply_text("New Tasks:")
@@ -257,16 +296,13 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_panel))
-    
-    # Database export handler
     app.add_handler(CommandHandler("database", send_database))
-    
     app.add_handler(MessageHandler(filters.Regex(r'💳 My Account'), my_account))
     app.add_handler(MessageHandler(filters.Regex(r'🏆 Leaderboard'), show_leaderboard))
     app.add_handler(MessageHandler(filters.Regex(r'✅ Tasks'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["tasks_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.Regex(r'📞 Support'), lambda u, c: u.message.reply_text(load_user_data()["_settings"]["support_message"], parse_mode='Markdown')))
     app.add_handler(MessageHandler(filters.ChatType.PRIVATE & filters.User(ADMIN_USER_IDS), handle_admin_actions))
-    print("✅ Bot is Online with Full Features and /database Active!")
+    print("✅ Bot is Online with Live Broadcast!")
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
