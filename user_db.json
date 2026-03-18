@@ -7,12 +7,12 @@
         "tasks_message": "\ud83c\udf89 Welcome to the Monk Event Bot!!! \ud83d\udcb0\ud83d\udd25\n\ud83d\ude80 Earn 1 point for 1 refer \ud83d\ude0a\n\ud83d\ude0a 1 refer = 1 point \ud83d\ude03\n\ud83e\udea9More than 1 refer = more points = more winning chances \ud83d\udcb0"
     },
     "7055400712": {
-        "points": 27.0,
+        "points": 28.0,
         "username": "User 7055400712",
         "first_name": "N/A"
     },
     "7424246777": {
-        "points": 11,
+        "points": 12.0,
         "username": "User 7424246777",
         "first_name": "N/A"
     },
@@ -27,17 +27,17 @@
         "first_name": "N/A"
     },
     "7235729709": {
-        "points": 8.0,
+        "points": 9.0,
         "username": "User 7235729709",
         "first_name": "N/A"
     },
     "7944746107": {
-        "points": 6.0,
+        "points": 7.0,
         "username": "User 7944746107",
         "first_name": "N/A"
     },
     "5345774018": {
-        "points": 8.0,
+        "points": 9.0,
         "username": "User 5345774018",
         "first_name": "N/A"
     },
@@ -47,7 +47,7 @@
         "first_name": "N/A"
     },
     "8331951125": {
-        "points": 4,
+        "points": 6.0,
         "username": "User 8331951125",
         "first_name": "N/A"
     },
@@ -57,7 +57,7 @@
         "first_name": "N/A"
     },
     "6042244967": {
-        "points": 3,
+        "points": 5.0,
         "username": "User 6042244967",
         "first_name": "N/A"
     },
@@ -67,7 +67,7 @@
         "first_name": "N/A"
     },
     "7132418789": {
-        "points": 3,
+        "points": 4.0,
         "username": "User 7132418789",
         "first_name": "N/A"
     },
@@ -82,7 +82,7 @@
         "first_name": "N/A"
     },
     "2052153747": {
-        "points": 2,
+        "points": 3.0,
         "username": "User 2052153747",
         "first_name": "N/A"
     },
@@ -92,12 +92,12 @@
         "first_name": "N/A"
     },
     "7912364246": {
-        "points": 2,
+        "points": 5.0,
         "username": "User 7912364246",
         "first_name": "N/A"
     },
     "6100668873": {
-        "points": 2,
+        "points": 3.0,
         "username": "User 6100668873",
         "first_name": "N/A"
     },
@@ -117,7 +117,7 @@
         "first_name": "N/A"
     },
     "6912968597": {
-        "points": 3.0,
+        "points": 4.0,
         "username": "User 6912968597",
         "first_name": "N/A"
     },
@@ -132,7 +132,7 @@
         "first_name": "N/A"
     },
     "6386505273": {
-        "points": 2,
+        "points": 3.0,
         "username": "User 6386505273",
         "first_name": "N/A"
     },
@@ -152,7 +152,7 @@
         "first_name": "N/A"
     },
     "7355379008": {
-        "points": 1,
+        "points": 4.0,
         "username": "User 7355379008",
         "first_name": "N/A"
     },
@@ -267,7 +267,7 @@
         "first_name": "N/A"
     },
     "7031318501": {
-        "points": 1,
+        "points": 4.0,
         "username": "User 7031318501",
         "first_name": "N/A"
     },
@@ -437,7 +437,7 @@
         "first_name": "N/A"
     },
     "6245324667": {
-        "points": 0,
+        "points": 1.0,
         "username": "User 6245324667",
         "first_name": "N/A"
     },
@@ -490,5 +490,50 @@
         "points": 1.0,
         "username": "User 7316459575",
         "first_name": "N/A"
+    },
+    "7891074742": {
+        "points": 1.0,
+        "username": "User 7891074742",
+        "first_name": "N/A"
+    },
+    "1246258844": {
+        "points": 1.0,
+        "username": "User 1246258844",
+        "first_name": "N/A"
+    },
+    "6122221196": {
+        "points": 2.0,
+        "username": "User 6122221196",
+        "first_name": "N/A"
+    },
+    "6294231620": {
+        "points": 1.0,
+        "username": "User 6294231620",
+        "first_name": "N/A"
+    },
+    "1958071422": {
+        "points": 1.0,
+        "username": "User 1958071422",
+        "first_name": "N/A"
+    },
+    "6091918855": {
+        "points": 1.0,
+        "username": "User 6091918855",
+        "first_name": "N/A"
+    },
+    "8194133957": {
+        "points": 1.0,
+        "username": "User 8194133957",
+        "first_name": "N/A"
+    },
+    "7281496550": {
+        "points": 1.0,
+        "username": "User 7281496550",
+        "first_name": "N/A"
+    },
+    "7179531410": {
+        "points": 0,
+        "username": "CrownVortex",
+        "first_name": "\u300e\ud83d\udc51\u300f\ud835\udc02\ud835\udc2b\ud835\udc28\ud835\udc30\ud835\udc27 \ud835\udc15\ud835\udc28\ud835\udc2b\ud835\udc2d\ud835\udc1e\ud835\udc31\u300e\ud83d\udc51\u300f"
     }
 }
